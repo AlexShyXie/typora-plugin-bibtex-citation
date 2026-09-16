@@ -5,7 +5,6 @@
 - 项目名称：`typora-plugin-bibtex-citation`
 - 当前目标仓库名为 `typora-plugin-bibtex-citation`；但插件运行标识、受控注释前缀与当前工作区目录仍可能暂时保留 `bibtex-citation`
 - 项目类型：Typora Community Plugin 插件
-- 当前最新已发布版本：`0.4.5`
 - 主要功能：在 Typora 中输入方括号式或叙述式 `@query` 时，从配置的多个 BibTeX 文件中检索文献条目，并通过 CSL 渲染 citation 与 bibliography
 - 运行依赖：
   - Typora Community Plugin Framework
@@ -33,7 +32,7 @@
 - [`style.css`](style.css)：建议列表、侧边栏和活动栏按钮的样式层；与宿主 Typora 样式存在直接耦合，改动时要留意覆盖关系
 - [`manifest.json`](manifest.json) / [`package.json`](package.json)：插件元数据与依赖入口，分别影响 Typora 识别和本地 Node 运行环境；当前仓库/包名与插件 `id` 不一定相同
 - [`README.md`](README.md)：对外使用说明；能力边界、按钮语义和支持矩阵变更后要同步更新
-- [`docs/behavior-rules.md`](docs/behavior-rules.md)：当前行为规则单点说明，集中维护路径解析、引用源、受控 citation、bibliography 与侧边栏/设置页边界
+- [`doc/note/behavior-rules.md`](doc/note/behavior-rules.md)：当前行为规则单点说明，集中维护路径解析、引用源、受控 citation、bibliography 与侧边栏/设置页边界
 - [`tests/unit/`](tests/unit)：正式单元测试入口，当前覆盖 BibTeX 数据层、CSL 主链路、当前文档状态、建议器、设置页、侧边栏与插件薄封装
 - [`tests/support/`](tests/support) / [`tests/fixtures/`](tests/fixtures)：测试辅助环境与真实 CSL 样式夹具；`tests/output/` 不纳入版本控制
 
@@ -55,82 +54,65 @@
 - 读取并解析配置中的 `.bib` 文件，提取 `key`、`title`、`author`、`year`、`journal` 等字段用于搜索和展示
 - 插入行为只写入 `@citationKey`，也不修改任何 `.bib` 文件
 
-## 当前状态
+## 长期实现约定
 
-- 仓库已完成一轮模块化重构，运行时主入口稳定在 [`main.js`](main.js) -> [`src/plugin.js`](src/plugin.js)；主控层当前已收敛为 façade + 子模块拆分结构，后续新增逻辑默认优先落在 `src/` 对应模块
-- 当前核心能力已经覆盖三条主线：BibTeX 检索与建议、当前文档引用统计、基于外部 `CSL File` 的 citation / bibliography 工作流
-- 当前文档级 YAML frontmatter 已接入 BibTeX 缓存与 CSL 模板选择；文档级 BibTeX 排在设置页文件前面，文档级 CSL 优先于设置页 CSL
-- CSL 工作流已接通“渲染/更新引用、恢复引用、插入/更新参考文献、删除参考文献”这条闭环；受控 citation 块已成为长期持久真源
-- 当前开发重点已从建议器交互逐步转向 CSL 能力扩展与 bibliography 工作流完善，尤其是复杂 citation 语法与真机回归稳定性
-- 设置页、侧边栏、显示语言与文档统计的联动已经基本成型，但关键体验仍需要在 Typora 真机中持续回归
-- 当前 README 已收敛到安装、配置、快速使用与最小排查；更细的行为规则统一沉淀在 `docs/behavior-rules.md`
-- 当前平台结论仅限 Windows 真机；Linux 与 macOS 尚未完成系统验证，不应在对外文档中做兼容性承诺
-- 仓库当前已具备受版本控制的 Node 单元测试目录；`tests/` 采用 `unit / support / fixtures` 分层，`tests/output/` 仅保留本地产物
-- 当前 `npm test` 已覆盖 106 条单元测试，核心逻辑层与大部分高宿主耦合层都已有回归保护；已补到叙述式扫描边界、CSL composite 渲染、`plugin.onload()`、调度链、`BibEntryStore` 异常分支、frontmatter 文件配置与设置页关键非法输入
-- `src/plugin.js` 已从重型装配文件收敛为 façade；当前主控层职责按 `document-actions / runtime / library-runtime / document-state-runtime` 拆分，继续重构时优先在这些子模块内演进
-- `package.json` 当前仅保留占位性质的 `npm run build`，插件运行不依赖原生构建步骤
-
-### 已知实现特征
-
-#### 模块与入口
+### 模块与入口
 
 - [`src/plugin.js`](src/plugin.js) 当前是主控 façade 层；对外暴露生命周期与公开方法，内部实现优先委托给 `src/plugin/*.js` 子模块
 - 主控层当前约定：文档改写动作放进 `src/plugin/document-actions.js`，启动注册放进 `src/plugin/runtime.js`，缓存/调度放进 `src/plugin/library-runtime.js`，当前文档状态访问放进 `src/plugin/document-state-runtime.js`
 - BibTeX 读取与缓存集中在 [`src/bibtex/store.js`](src/bibtex/store.js)；后续涉及检索、校验或引用统计时，优先复用这里的合并条目与 `mergedEntryKeySet`
 - 项目记忆中的路径优先使用仓库根目录下的相对路径；只有在必须消除歧义时才补充绝对路径，并避免再引用旧的 `D:\Desktop\bibtex-citation`
 
-#### BibTeX 与建议器
+### BibTeX 与建议器
 
-- 只检索设置中列出的 BibTeX 文件，不依赖外部文献管理器或 SQLite；重复 citation key 以更靠前的文件为准
+- 检索文档 frontmatter 的 `bib` 与设置页配置合并后的 BibTeX 文件，不依赖外部文献管理器或 SQLite；重复 citation key 以更靠前的文件为准
 - BibTeX 路径在设置页中逐条维护，底层序列化为对象数组；每一条都必须显式声明 `path + sourceType`
 - BibTeX 与 CSL 路径解析都已改为逐条 `path + sourceType` 模型；实现时不要再引入基于 `process.cwd()`、Typora 目录或其他来源类别的隐式回退
 - Markdown YAML frontmatter 只支持 `bib` 与 `csl`；文档级配置统一经 `src/document/frontmatter.js` 归一化为 `markdown-relative`，再由 `src/bibtex/source-configs.js` 与设置页配置合并
 - 建议器支持未闭合方括号中的 `[@key` / `[@a; @b`，以及位于独立正文边界的叙述式 `@key`；中文紧贴、邮箱、URL 与代码上下文不触发叙述式建议
 - 候选项必须返回 HTML 字符串而不是 DOM 节点；建议交互兜底逻辑集中在 [`src/suggest/interactions.js`](src/suggest/interactions.js)
 
-#### 当前文档状态与侧边栏
+### 当前文档状态与侧边栏
 
 - 当前文档引用统计统一读取严格方括号、已知叙述式 key 与受控 citation 真源；文档状态缓存与错误信息由 [`src/document/`](src/document) 统一维护
 - 插件主控通过 `invalidateLibrary()` 标记文献库失效，通过 `reloadLibraryNow()` 执行显式重读；不要混用两者语义
 - 侧边栏展示的是 BibTeX 文献库状态、当前文档引用统计和 CSL 操作入口；相关状态刷新优先复用主控已有的轻量重绘链路
 
-#### CSL 工作流
+### CSL 工作流
 
 - `Render / Update Citations` 会同时处理严格合法的可见 `[@key]` / `[@a; @b]`、独立且 key 已知的叙述式 `@key` 与已有受控 citation 块；带前缀说明、locator、未知 key 或逗号分隔的可见方括号块不会参与改写
 - 所有 CSL 文档改写前都会重新扫描全文；只要任意闭合方括号块中出现未知 key 或非严格 CSL 语法，就直接报错并停止
 - CSL 相关模块必须保持懒加载，并通过 `createRequire(import.meta.url)` 解析插件目录内的 `@citation-js/*` 依赖，否则 Typora 设置页与侧边栏可能整块消失
 - citation 渲染优先使用 CSL 的 `html` 输出；叙述式引用使用 citeproc `composite` 模式，同作者同年消歧按整篇文档上下文与 bibliography 排序稳定计算
 
-#### Bibliography 与引用源
+### Bibliography 与引用源
 
 - 受控 citation 块中的原始 `[@key]` / `@key` 是长期持久真源；不要尝试从 `(Smith, 2024)`、`Smith (2024)`、`[1]` 或 `<sup>1</sup>` 逆向解析回 key
 - 统一引用源提取同时识别正文里的严格 `[@key]`、已知叙述式 `@key` 与受控 citation 注释中的原始语法；bibliography、统计和相关校验都应复用这套来源模型
 - bibliography 使用文末受控块 `<!-- bibtex-citation:bibliography:start --> ... <!-- bibtex-citation:bibliography:end -->` 做重复更新；删除操作也只删除本插件生成的受控块
 - bibliography 相关内部命名统一使用 `upsert` 语义；后续新增逻辑优先沿用这套命名
 
-#### 调试与文档约束
+### 调试与文档约束
 
 - HTML 注释 `<!-- ... -->` 中的 `[@key]` 会在闭合块扫描阶段被整体忽略；这条规则同时影响统计、校验、citation 渲染和 bibliography 提取
 - `tests/` 当前已纳入版本控制；新增测试优先落在 `tests/unit/<domain>/`，共享 mock 放到 `tests/support/`，真实样式夹具放到 `tests/fixtures/`
-- `README.md` 负责安装、快速上手与最小排查；只要行为边界变化，就要同时同步 `README.md` 与 `docs/behavior-rules.md`
+- `README.md` 负责安装、快速上手与最小排查；行为边界变化时更新 `doc/PRODUCT.md` 与 `doc/note/behavior-rules.md`，并同步直接受影响的对外使用说明
 - 若后续继续拆主控层，优先保持“子模块通过 plugin 公共方法回调，而不是直接绕过主控字段”的约定，避免破坏现有测试中对可覆写方法的替换能力
 
-## 计划
+## 文档索引与维护
 
-### 当前优先事项
-
-- 在 Typora 真机里持续回归 `CSL File` 路径配置、citation / bibliography 操作链路和插件启动稳定性
-- 继续完善 bibliography 工作流，优先让更多流程直接复用受控 citation 块中的原始 `@key`
-- 若继续扩展 CSL 能力，优先评估 locator、复杂 citation cluster 与 note-style 的支持边界，并同步更新 README 支持矩阵
-- 持续验证侧边栏、显示语言切换、当前文档引用统计与缓存刷新链路的联动稳定性
-
-### 建议后续改进
-
-- 为 BibTeX 解析与检索排序提取更细的纯函数，降低对 Typora 运行时的耦合，便于测试
-- 继续补齐 BibTeX 到 CSL-JSON 的字段映射，优先关注 `booktitle`、更完整日期、`editor` 与 `volume/issue/page` 这类会影响排序和样式兼容性的字段
-- 若后续继续扩展 citation 工作流，优先围绕受控 citation 块继续完善批量更新、提取与恢复能力，而不是依赖对最终渲染文本做逆向猜测
-- 若后续继续补测试，优先围绕 `src/plugin/runtime.js` 的启动 / 注册链与更细的宿主 DOM 结构断言继续加深，而不是重复覆盖已稳定的纯逻辑模块
-- 若后续再调整平台承诺、安装路径或规则文档边界，优先保持 README、AGENTS 与 `docs/behavior-rules.md` 三处同步
+- [doc/PRODUCT.md](doc/PRODUCT.md)：产品定位、现有能力、关键流程、支持范围与限制。
+- [doc/TODO.md](doc/TODO.md)：未完成事项、验证缺口与完成标准；完成项及时清理。
+- [doc/Roadmap.md](doc/Roadmap.md)：阶段规划，候选方向不代表已经承诺实现。
+- [doc/PRD/README.md](doc/PRD/README.md)：按功能组织需求的入口。
+- [doc/decisions/architecture.md](doc/decisions/architecture.md)：现有架构与长期约束的依据。
+- [doc/note/behavior-rules.md](doc/note/behavior-rules.md)：现行行为规则的唯一正文。
+- [doc/note/verification.md](doc/note/verification.md)：验证证据与适用范围。
+- [doc/archive/README.md](doc/archive/README.md)：历史文档归档入口。
+- `AGENTS.md` 只维护稳定背景、技术栈、目录地图、文档索引与长期约定；动态状态和计划写入上述对应文档。
+- `README.md` 面向用户；只在使用说明受影响或用户明确要求时修改，不承载内部交接记录。
+- `CHANGELOG.md` 仅在用户明确要求更新版本时修改；新条目采用 `## a.b.c YYYY-MM-DD 版本摘要`，正文按 `1. [feat/fix/doc...] 描述` 编号。保留历史记录，不把本地版本记录当作远端发布证明。
+- 不再使用 `LAST_RUN.md` 交接；变更经过由 Git 历史记录。
 
 ## 资源
 
@@ -160,7 +142,7 @@
 #### 检索与状态
 
 - 检查作者、路径与仓库信息残留：`rg -n -S "adam|D:\\Desktop\\bibtex-citation|zotero|Zotero" .`
-- 检查 `package.json`、`README.md` 与 `.gitignore` 是否仍与“本地测试不追踪”的策略一致：`git diff -- package.json README.md .gitignore`
+- 正式测试、辅助代码与夹具纳入版本控制，只有 `tests/output/` 为本地产物；检查相关规则：`git diff -- tests .gitignore`
 - 检查候选栏触发与点击兜底相关实现：`rg -n "findQuery|registerSuggestInteractions|getSelectedBibtexSuggestionKey|translateX" src`
 - 检查当前文档引用统计与 `]` 刷新链路：`rg -n "getCitationState|extractClosedBracketBlocks|getEntryKeySet|scheduleCitationStateRefresh|handleCitationStateKeydown" src`
 

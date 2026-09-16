@@ -67,9 +67,9 @@ git clone https://github.com/Lazenca-Liqiuqi/typora-plugin-bibtex-citation.git t
 npm test
 ```
 
-当前测试入口默认执行 `tests/unit/` 下的正式单元测试；`tests/fixtures/` 中的 CSL 样式文件会作为真实样式夹具参与回归。当前测试总量为 95 条。
+当前测试入口默认执行 `tests/unit/` 下的正式单元测试；`tests/fixtures/` 中的 CSL 样式文件会作为真实样式夹具参与回归。测试数量与结果以本地运行输出为准。
 
-当前实现的完整行为规则、边界与约束已整理到 [docs/behavior-rules.md](docs/behavior-rules.md)。
+当前实现的完整行为规则、边界与约束已整理到 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)。
 
 ### 启用插件
 
@@ -108,7 +108,7 @@ D:/Literature/shared.bib
 - `Relative to the folder currently opened in Typora`
 - `Absolute path`
 
-更完整的路径解析、重复 key 优先级与缓存规则请查看 [docs/behavior-rules.md](docs/behavior-rules.md)。
+更完整的路径解析、重复 key 优先级与缓存规则请查看 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)。
 
 ### Markdown YAML 中的文档级配置
 
@@ -208,14 +208,14 @@ csl: ./apa.csl
 - `Insert / Update Bibliography`：根据当前文档中的合法引用源生成或更新受控 bibliography 块
 - `Remove Bibliography`：只删除本插件生成的受控 bibliography 块
 
-更细的 citation 语法、受控注释格式、真源规则、报错停止条件与 bibliography 更新方式请查看 [docs/behavior-rules.md](docs/behavior-rules.md)。
+更细的 citation 语法、受控注释格式、真源规则、报错停止条件与 bibliography 更新方式请查看 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)。
 
 ## CSL 支持边界
 
 - 当前支持严格方括号形式 `[@key]` / `[@a; @b]` 与 Pandoc 风格叙述式 `@key`，并支持 bibliography 更新、同作者同年消歧、数字型引用与上标型数字引用。
 - 当前 citation 排序、citation-number 与 bibliography 顺序由 `.csl` 样式和 CSL 处理器决定，插件不手写排序规则。
 - 当前不支持 `-@key`、叙述式 locator、prefix、suffix、更复杂 citation cluster，以及 note-style citation。
-- 更完整的规则、边界与真源约束请直接查看 [docs/behavior-rules.md](docs/behavior-rules.md)。
+- 更完整的规则、边界与真源约束请直接查看 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)。
 
 ## 常见排查
 
@@ -238,7 +238,7 @@ csl: ./apa.csl
 - 若 `Render / Update Citations` 或 `Insert / Update Bibliography` 失败，先确认已经配置了可读取的 `.csl` 文件
 - 若渲染或 bibliography 更新失败，优先检查当前文档是否含有未知 key，或不受支持的 citation 语法
 - 如果你更换了 `CSL File` 后想刷新已经渲染过的 citation，直接再次执行 `Render / Update Citations` 即可
-- 更详细的报错停止条件与规则边界请查看 [docs/behavior-rules.md](docs/behavior-rules.md)
+- 更详细的报错停止条件与规则边界请查看 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)
 
 ## 说明
 
