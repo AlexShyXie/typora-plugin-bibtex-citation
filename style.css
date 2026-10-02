@@ -585,3 +585,78 @@
   color: #f3f4f6;
   text-shadow: none;
 }
+
+/* BibTeX F1 command palette: insert-citation search modal */
+
+.bibtex-modal-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.bibtex-modal-search:focus {
+  border-color: #93c5fd;
+}
+
+.bibtex-modal-results {
+  max-height: 46vh;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.bibtex-modal-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.bibtex-modal-item:last-child {
+  border-bottom: none;
+}
+
+.bibtex-modal-item.bibtex-modal-active,
+.bibtex-modal-item:hover {
+  background-color: #f0f0f0;
+}
+
+.bibtex-modal-empty {
+  padding: 14px 10px;
+  color: #666;
+  text-align: center;
+}
+
+.bibtex-modal-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.theme-dark .bibtex-modal-search {
+  border-color: #374151;
+  background: rgba(17, 24, 39, 0.6);
+  color: #e5e7eb;
+}
+
+.theme-dark .bibtex-modal-results {
+  border-color: #374151;
+}
+
+.theme-dark .bibtex-modal-item {
+  border-bottom-color: #374151;
+}
+
+.theme-dark .bibtex-modal-item.bibtex-modal-active,
+.theme-dark .bibtex-modal-item:hover {
+  background-color: #1f2937;
+}
+
+.theme-dark .bibtex-modal-empty,
+.theme-dark .bibtex-modal-hint {
+  color: #9ca3af;
+}

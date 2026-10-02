@@ -4,6 +4,18 @@ function createMockClassList(initial = []) {
     add(...tokens) {
       tokens.forEach((token) => classes.add(token));
     },
+    remove(...tokens) {
+      tokens.forEach((token) => classes.delete(token));
+    },
+    toggle(token, force) {
+      const next = force === undefined ? !classes.has(token) : Boolean(force);
+      if (next) {
+        classes.add(token);
+      } else {
+        classes.delete(token);
+      }
+      return next;
+    },
     contains(token) {
       return classes.has(token);
     },
@@ -70,6 +82,14 @@ export function createMockElement(tagName = "div") {
     },
     closest() {
       return null;
+    },
+    remove() {
+      if (Array.isArray(this.parentNode?.children)) {
+        const index = this.parentNode.children.indexOf(this);
+        if (index >= 0) {
+          this.parentNode.children.splice(index, 1);
+        }
+      }
     },
     getBoundingClientRect() {
       return { left: 0, right: 0, height: 0 };

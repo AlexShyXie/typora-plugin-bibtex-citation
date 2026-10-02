@@ -52,13 +52,24 @@ test("isFileConfigShapeValid 仅在 absolute 类别下要求绝对路径", () =>
     }),
     false,
   );
-  assert.equal(
-    isFileConfigShapeValid({
-      path: "C:/a.bib",
-      sourceType: FILE_SOURCE_TYPE.ABSOLUTE,
-    }),
-    true,
-  );
+  // 绝对路径判定复用运行平台的 path 语义：`C:/` 仅在 Windows 视为绝对路径
+  if (process.platform === "win32") {
+    assert.equal(
+      isFileConfigShapeValid({
+        path: "C:/a.bib",
+        sourceType: FILE_SOURCE_TYPE.ABSOLUTE,
+      }),
+      true,
+    );
+  } else {
+    assert.equal(
+      isFileConfigShapeValid({
+        path: "/tmp/a.bib",
+        sourceType: FILE_SOURCE_TYPE.ABSOLUTE,
+      }),
+      true,
+    );
+  }
   assert.equal(
     isFileConfigShapeValid({
       path: "./a.bib",

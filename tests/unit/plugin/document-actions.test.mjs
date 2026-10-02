@@ -15,6 +15,7 @@ globalThis.window[coreSymbol] = {
   PluginSettings: class PluginSettings {},
   EditorSuggest: class EditorSuggest {},
   SettingTab: class SettingTab {},
+  Modal: class Modal {},
   SidebarPanel: class SidebarPanel {},
   Notice: class Notice {},
   I18n: class I18n {

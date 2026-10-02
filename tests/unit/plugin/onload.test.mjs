@@ -14,6 +14,7 @@ class BasePlugin {
     this._registered = [];
     this._settingTabs = [];
     this._markdownSuggests = [];
+    this._commands = [];
     this.settings = {
       _store: new Map(),
       setDefault(value) {
@@ -50,6 +51,9 @@ class BasePlugin {
   registerMarkdownSugguest(value) {
     this._markdownSuggests.push(value);
   }
+  registerCommand(value) {
+    this._commands.push(value);
+  }
   registerDomEvent() {}
 }
 
@@ -64,6 +68,7 @@ globalThis.window[coreSymbol] = {
   },
   EditorSuggest: class EditorSuggest {},
   SettingTab: class SettingTab {},
+  Modal: class Modal {},
   SidebarPanel: class SidebarPanel {
     addRibbonButton() {}
   },
@@ -117,4 +122,17 @@ test("onload 会注册设置、侧边栏和建议器，并规范化默认设置"
   assert.equal(plugin._markdownSuggests.length, 1);
   assert.ok(plugin.sidebarPanel);
   assert.ok(plugin._suggest);
+  assert.equal(plugin._commands.length, 6);
+  assert.deepEqual(
+    plugin._commands.map((command) => command.id),
+    [
+      "insert-citation",
+      "refresh-cache",
+      "render-citations",
+      "restore-citations",
+      "upsert-bibliography",
+      "remove-bibliography",
+    ],
+  );
+  assert.ok(plugin._commands.every((command) => command.scope === "editor"));
 });

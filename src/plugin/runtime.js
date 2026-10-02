@@ -9,6 +9,7 @@ import { BibCitationSettingTab } from "../settings/tab.js";
 import { BibCitationSidebarPanel } from "../sidebar/panel.js";
 import { BibCitationSuggest } from "../suggest/suggest.js";
 import { registerSuggestInteractions } from "../suggest/interactions.js";
+import { registerCommands } from "./command-runtime.js";
 
 /**
  * 功能：把设置中的关键字段规范化为运行时约定格式。
@@ -46,4 +47,6 @@ export function registerPluginRuntime(plugin) {
   const suggest = new BibCitationSuggest(plugin.app, plugin);
   plugin._suggest = suggest;
   plugin.registerMarkdownSugguest(suggest);
+
+  registerCommands(plugin);
 }
