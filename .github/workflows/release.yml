@@ -27,7 +27,7 @@ jobs:
         run: npm ci --omit=dev
 
       - name: Pack plugin.zip
-        run: zip -r plugin.zip main.js manifest.json style.css package.json src node_modules
+        run: zip -r plugin.zip main.js manifest.json style.css package.json src node_modules tests
 
       - name: Create Release
         env:
