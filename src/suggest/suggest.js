@@ -58,7 +58,7 @@ export class BibCitationSuggest extends EditorSuggest {
   }
 
   renderSuggestion(item) {
-    return renderBibSuggestion(item);
+    return renderBibSuggestion(item, this._query || "");
   }
 
   beforeApply(item) {

@@ -208,7 +208,7 @@ class BibSearchModal extends Modal {
       const row = document.createElement("div");
       row.className = "bibtex-modal-item";
       row.setAttribute("data-index", String(index));
-      row.innerHTML = renderBibSuggestion(item);
+      row.innerHTML = renderBibSuggestion(item, this.searchInput?.value || "");
       row.addEventListener("click", () => this._applyIndex(index));
       row.addEventListener("mousemove", () => this._setActiveIndex(index));
       this.resultsEl.append(row);

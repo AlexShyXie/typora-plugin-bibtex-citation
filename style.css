@@ -660,3 +660,30 @@
 .theme-dark .bibtex-modal-hint {
   color: #9ca3af;
 }
+
+/* BibTeX suggestion: highlighted query hits and citation key line */
+
+.bibtex-cite-hit {
+  background-color: rgba(250, 204, 21, 0.45);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.bibtex-cite-key {
+  margin-top: 2px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Courier New", monospace;
+  font-size: 11px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-dark .bibtex-cite-hit {
+  background-color: rgba(250, 204, 21, 0.3);
+}
+
+.theme-dark .bibtex-cite-key {
+  color: #9ca3af;
+}

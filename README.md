@@ -138,6 +138,21 @@ Narrative citation example:
 ```
 Under author–year styles such as APA, a narrative citation is usually rendered as `Smith (2024) argues...`. To avoid treating emails, URLs, or ordinary handles as citations, a bare `@key` must stand at an independent body-text boundary, and the key must exist in the current BibTeX library.
 The candidate list insertion step only writes the citation key; it does not expand the full reference format, nor modify the original `.bib` file.
+
+#### Matching Rules for Candidate List
+
+Candidates are filtered by ‘inclusive matching’: perform a case-insensitive substring comparison between the search term and the retrieval text of each entry, and include it if there’s a match. The retrieval text is concatenated from the following fields:
+
+`citation key`, title, author, editor, year/date, journal, journal alias, book title, volume, issue, number, page number, DOI, publisher, institution, school, organization.
+
+- Matching is not limited to the beginning of fields: substrings anywhere in the title, DOI, journal name, etc., are considered matches.
+- The search term is treated as a whole without spaces; in parenthetical citations, multiple references can be separated by `;` and followed by `@` to search for the next entry.
+- Sorting rules: entries with `citation key` starting with the search term are placed first, followed by the rest in alphabetical order of the key, with a maximum display of 50 items.
+- When the input exactly matches a complete citation key, the candidate list automatically closes (considered as completed input).
+- Each candidate will display its citation key and highlight the matched segment to facilitate confirmation of ‘why this one’.
+
+Inserting the candidate list writes only the citation key, without automatically expanding to the full reference format or modifying the original `.bib` file.
+
 ### 4. Use the Sidebar
 After enabling the activity bar of the Typora Community Plugin Framework, a new BibTeX icon button appears on the left. Click it to open the plugin's sidebar panel, where you can view the current configuration and document status, and perform the following operations:
 - `Refresh Cache`

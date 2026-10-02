@@ -64,4 +64,18 @@ test("BibCitationSuggest.beforeApply / getSuggestionId / renderSuggestion 返回
   assert.equal(suggest.getSuggestionId(item), "smith2024");
   assert.equal(suggest.beforeApply(item), "@smith2024");
   assert.match(suggest.renderSuggestion(item), /Forecast Skill/);
+  assert.ok(!suggest.renderSuggestion(item).includes("<mark"));
+});
+
+test("renderSuggestion 使用建议器当前查询高亮命中片段", () => {
+  const suggest = createSuggest();
+  suggest._query = "fore";
+  const html = suggest.renderSuggestion({
+    key: "smith2024",
+    title: "Forecast Skill",
+    searchText: "",
+  });
+
+  assert.match(html, /<mark class="bibtex-cite-hit">Fore<\/mark>cast Skill/);
+  assert.match(html, /class="bibtex-cite-key">@smith2024</);
 });
