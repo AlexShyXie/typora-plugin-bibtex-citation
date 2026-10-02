@@ -8,6 +8,7 @@ dist/
 out/
 .codebuddy/
 
+
 # mise
 mise.toml
 
