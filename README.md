@@ -6,9 +6,9 @@
 
 The plugin only reads the `.bib` and `.csl` files you configure in its settings, and inserts citation keys or rendered in-text citations into the document. It never modifies any `.bib` file, nor does it depend on any external reference manager or SQLite.
 
-This project is forked from [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero) -> [Li-Lazenca-Qiuqi/typora-plugin-bibtex-citation](https://github.com/Li-Lazenca-Qiuqi/typora-plugin-bibtex-citation), and has been gradually reshaped into a citation workflow oriented toward local BibTeX files.
+This project is forked from [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero), and has been gradually reshaped into a citation workflow oriented toward local BibTeX files.
 
-![Version](https://img.shields.io/badge/version-v0.4.5-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
+![Version](https://img.shields.io/badge/version-v1.0.2-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
 
 ## Features
 
@@ -41,11 +41,14 @@ This project is forked from [adam-coates/typora-plugin-zotero](https://github.co
    - Project: <https://github.com/typora-community-plugin/typora-community-plugin>
 2. Prepare at least one local `.bib` file
 ### Install the Plugin
-Clone or copy this repository into the plugin directory of the Typora Community Plugin Framework. If you also rename the GitHub repository later, it is recommended to keep the plugin directory name consistent with the repository name, i.e. `typora-plugin-bibtex-citation`; the current plugin runtime `id` remains `bibtex-citation`.
+Clone or copy this repository into the plugin directory of the Typora Community Plugin Framework. The plugin directory name must be exactly the plugin `id` declared in `manifest.json`, i.e. `AlexShyXie.bibtex-citation`; otherwise the framework reports an `id` mismatch. The GitHub repository name (`typora-plugin-bibtex-citation`) does not have to equal the `id`.
 The following example uses the Typora Community Plugin Framework directory on Windows:
 ```powershell
-cd $env:UserProfile\.typora\community-plugins\plugins\
-git clone https://github.com/Lazenca-Liqiuqi/typora-plugin-bibtex-citation.git typora-plugin-bibtex-citation
+# The framework plugin directory differs by installation method; use the one that exists on your machine:
+#   %APPDATA%\Typora\plugins\plugins                                (official installer, common on Windows)
+#   $env:UserProfile\.typora\community-plugins\plugins               (alternative layout)
+cd "$env:APPDATA\Typora\plugins\plugins"
+git clone https://github.com/AlexShyXie/typora-plugin-bibtex-citation.git AlexShyXie.bibtex-citation
 ```
 After placing the plugin directory in the correct location, run `npm install` once inside the plugin directory. No additional build step is required.
 The `npm install` step mainly installs citation rendering dependencies such as `@citation-js/core` and `@citation-js/plugin-csl`.
@@ -206,8 +209,14 @@ All sidebar operations are also registered in the command palette, plus one sear
 - Narrative `@key` under numeric styles falls back to bracketed rendering automatically; if you still see `[NO_PRINTED_FORM]`, confirm the plugin has been updated to a version containing the fallback logic, and check that the entry data is complete
 - If you switched the `CSL File` and want to refresh already-rendered citations, simply run `Render / Update Citations` again
 - For more detailed error stop conditions and rule boundaries, see [doc/note/behavior-rules.md](doc/note/behavior-rules.md)
+### Installation and Plugin ID
+- If installation or update fails with `下载的插件 "..." id 与用户安装的 id 不相同`, the framework is comparing the `id` registered on its side with the `id` in the downloaded `manifest.json`
+- The `id` of this plugin is `AlexShyXie.bibtex-citation`; if an older `bibtex-citation` installation is still registered, uninstall it and remove its leftover settings first, then install again
+- The plugin directory name must be exactly `AlexShyXie.bibtex-citation`; a directory named after the repository will trigger the same `id` mismatch
+- Changing the `id` does not affect documents already written: the controlled comment prefix is `bibtex-citation` and is hardcoded independently of the `id`
 ## Notes
-- Plugin ID: `bibtex-citation`
+- Plugin ID: `AlexShyXie.bibtex-citation`
 - Plugin name: `BibTeX Citations`
 - The recommended repository package name is `typora-plugin-bibtex-citation`
-- The plugin runtime identifier and controlled comment prefix remain `bibtex-citation`
+- The plugin directory name must be exactly `AlexShyXie.bibtex-citation`
+- The controlled comment prefix remains `bibtex-citation` and is independent of the plugin `id`

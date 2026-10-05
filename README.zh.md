@@ -4,9 +4,9 @@
 
 插件只会读取你在设置中配置的 `.bib` 文件与 `.csl` 文件，并在文档中插入 citation key 或渲染后的文中引用。它不会修改任何 `.bib` 文件，也不依赖外部参考文献管理器或 SQLite。
 
-本项目 fork 自 [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero) -> [Li-Lazenca-Qiuqi/typora-plugin-bibtex-citation](https://github.com/Li-Lazenca-Qiuqi/typora-plugin-bibtex-citation)，并在此基础上逐步调整为面向本地 BibTeX 文件的引用工作流。
+本项目 fork 自 [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero)，并在此基础上逐步调整为面向本地 BibTeX 文件的引用工作流。
 
-![Version](https://img.shields.io/badge/version-v0.4.5-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
+![Version](https://img.shields.io/badge/version-v1.0.2-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
 
 ## 功能概览
 
@@ -43,13 +43,16 @@
 
 ### 安装插件
 
-将本仓库克隆或复制到 Typora Community Plugin Framework 的插件目录。若你后续也同步重命名了 GitHub 仓库，推荐插件目录名与仓库名统一为 `typora-plugin-bibtex-citation`；当前插件运行标识 `id` 仍保持为 `bibtex-citation`。
+将本仓库克隆或复制到 Typora Community Plugin Framework 的插件目录。插件目录名必须与 `manifest.json` 中声明的插件 `id` 完全一致，即 `AlexShyXie.bibtex-citation`，否则框架会提示 `id` 不一致；GitHub 仓库名（`typora-plugin-bibtex-citation`）不需要与 `id` 相同。
 
 下面的示例以 Windows 上的 Typora Community Plugin Framework 目录为准：
 
 ```powershell
-cd $env:UserProfile\.typora\community-plugins\plugins\
-git clone https://github.com/Lazenca-Liqiuqi/typora-plugin-bibtex-citation.git typora-plugin-bibtex-citation
+# 框架插件目录随安装方式不同而不同，请使用你本机实际存在的那个：
+#   %APPDATA%\Typora\plugins\plugins                  （官方安装脚本，Windows 常见）
+#   $env:UserProfile\.typora\community-plugins\plugins （另一种布局）
+cd "$env:APPDATA\Typora\plugins\plugins"
+git clone https://github.com/AlexShyXie/typora-plugin-bibtex-citation.git AlexShyXie.bibtex-citation
 ```
 
 将插件目录放到正确位置后，请在插件目录下执行一次 `npm install`。当前项目不需要额外构建步骤。
@@ -275,9 +278,17 @@ csl: ./apa.csl
 - 如果你更换了 `CSL File` 后想刷新已经渲染过的 citation，直接再次执行 `Render / Update Citations` 即可
 - 更详细的报错停止条件与规则边界请查看 [doc/note/behavior-rules.md](doc/note/behavior-rules.md)
 
+### 安装与插件 ID
+
+- 若安装或更新时提示 `下载的插件 "..." id 与用户安装的 id 不相同`，说明框架在用它这一侧登记的 `id` 与下载包 `manifest.json` 里的 `id` 做比对
+- 本插件的 `id` 为 `AlexShyXie.bibtex-citation`；若本机仍登记着旧的 `bibtex-citation`，请先卸载旧安装并清理其残留设置，再重新安装
+- 插件目录名必须严格等于 `AlexShyXie.bibtex-citation`；用仓库名命名目录会触发同样的 `id` 不一致
+- 变更 `id` 不会影响已写入的文档：受控注释前缀为 `bibtex-citation`，与 `id` 解耦且硬编码
+
 ## 说明
 
-- 插件 ID：`bibtex-citation`
+- 插件 ID：`AlexShyXie.bibtex-citation`
 - 插件名称：`BibTeX Citations`
 - 当前仓库包名推荐使用 `typora-plugin-bibtex-citation`
-- 当前插件运行标识与受控注释前缀仍保持为 `bibtex-citation`
+- 插件目录名必须严格等于 `AlexShyXie.bibtex-citation`
+- 受控注释前缀仍保持为 `bibtex-citation`，与插件 `id` 互相独立
