@@ -1,6 +1,6 @@
 {
   "name": "typora-plugin-bibtex-citation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Typora BibTeX Citation Plugin",
   "author": "AlexShyXie",
   "type": "module",

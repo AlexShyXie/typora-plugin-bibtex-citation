@@ -1,4 +1,4 @@
-const { Notice, SidebarPanel } = window[Symbol.for("typora-plugin-core@v2")];
+const { Notice, WorkspaceView } = window[Symbol.for("typora-plugin-core@v2")];
 
 import { FILE_SOURCE_TYPE } from "../constants.js";
 import {
@@ -6,33 +6,39 @@ import {
   getActiveCslFileConfig,
 } from "../bibtex/source-configs.js";
 import { summarizeText } from "../utils/html.js";
+import { BIB_PANEL_VIEW_TYPE } from "./right-dock.js";
 
 /**
- * 功能：提供 BibTeX 配置概览侧边栏，并在活动栏注册入口按钮。
- * 输入：插件实例，用于读取设置与触发缓存刷新。
- * 输出：可注册到 Typora 侧边栏的面板实例。
+ * 功能：提供 BibTeX 配置概览的右侧停靠面板视图，经 viewManager 注册到 workspace.rightSplit。
+ * 输入：leaf 为核心传入的分栏叶子，插件实例用于读取设置与触发缓存刷新。
+ * 输出：可被右侧分栏挂载的面板视图实例。
  */
-export class BibCitationSidebarPanel extends SidebarPanel {
-  constructor(plugin) {
-    super();
+export class BibCitationPanelView extends WorkspaceView {
+  constructor(leaf, plugin) {
+    super(leaf);
     this.plugin = plugin;
+    // 面板 leaf 挂在 rightSplit 的 tabs 节点下，leaf 自带的 resize 把手因 parent 不是 split
+    // 永远不会触发拖拽，却会盖住 sidedock 的拖拽把手，导致本面板激活时无法调宽；这里移除它。
+    leaf?.resizeHandleEl?.remove?.();
     this.containerEl = document.createElement("section");
     this.containerEl.className = "bibtex-sidebar-panel";
-
-    this.addRibbonButton({
-      id: `${plugin.manifest.id}.sidebar`,
-      title: plugin.i18n.t.sidebar.title,
-      icon: createRibbonIcon(),
-      className: "bibtex-sidebar-ribbon-button",
-    });
   }
 
   /**
-   * 功能：在面板显示时按最新设置重新渲染概览内容。
+   * 功能：声明本视图在 viewManager 中的注册类型。
+   * 输入：无。
+   * 输出：与 manifest id 一致的视图类型字符串。
+   */
+  getViewType() {
+    return BIB_PANEL_VIEW_TYPE;
+  }
+
+  /**
+   * 功能：在面板视图打开时按最新设置渲染概览内容。
    * 输入：无。
    * 输出：无返回值。
    */
-  onshow() {
+  onOpen() {
     this.render();
   }
 
@@ -210,14 +216,6 @@ export class BibCitationSidebarPanel extends SidebarPanel {
       );
     }
   }
-}
-
-function createRibbonIcon() {
-  const icon = document.createElement("span");
-  icon.className = "bibtex-sidebar-ribbon-icon";
-  icon.setAttribute("aria-hidden", "true");
-  icon.textContent = "“";
-  return icon;
 }
 
 function createSummaryGrid(items) {

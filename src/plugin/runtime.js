@@ -6,7 +6,11 @@ import {
   serializeSingleFileConfig,
 } from "../bibtex/settings.js";
 import { BibCitationSettingTab } from "../settings/tab.js";
-import { BibCitationSidebarPanel } from "../sidebar/panel.js";
+import {
+  BIB_PANEL_VIEW_TYPE,
+  BibCitationRightDock,
+} from "../sidebar/right-dock.js";
+import { BibCitationPanelView } from "../sidebar/panel.js";
 import { BibCitationSuggest } from "../suggest/suggest.js";
 import { registerSuggestInteractions } from "../suggest/interactions.js";
 import { registerCommands } from "./command-runtime.js";
@@ -32,14 +36,19 @@ export function normalizePluginSettings(plugin) {
 }
 
 /**
- * 功能：注册设置页、侧边栏与建议器，完成主控层的运行时装配。
+ * 功能：注册设置页、右侧停靠面板与建议器，完成主控层的运行时装配。
  * 输入：插件实例。
  * 输出：无返回值。
  */
 export function registerPluginRuntime(plugin) {
   plugin.registerSettingTab(new BibCitationSettingTab(plugin));
-  plugin.sidebarPanel = new BibCitationSidebarPanel(plugin);
-  plugin.register(plugin.app.workspace.sidebar.addPanel(plugin.sidebarPanel));
+  plugin.rightDock = new BibCitationRightDock(plugin);
+  plugin.register(
+    plugin.app.viewManager.registerView(BIB_PANEL_VIEW_TYPE, (leaf) =>
+      new BibCitationPanelView(leaf, plugin),
+    ),
+  );
+  plugin.register(() => plugin.rightDock.dispose());
 
   plugin._suggest = null;
   registerSuggestInteractions(plugin);

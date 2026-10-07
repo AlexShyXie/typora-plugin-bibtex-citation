@@ -302,7 +302,16 @@ export function openInsertCitationModal(plugin) {
 }
 
 /**
- * 功能：注册插件全部 F1 命令面板命令：一条检索插入命令 + 五条与侧边栏按钮同源的动作命令。
+ * 功能：通过 rightDock 切换右侧停靠面板显隐，不依赖活动栏或左侧边栏。
+ * 输入：插件实例。
+ * 输出：无返回值。
+ */
+function runTogglePanel(plugin) {
+  plugin.rightDock?.toggle?.();
+}
+
+/**
+ * 功能：注册插件全部 F1 命令面板命令：一条检索插入命令、一条侧边栏切换命令 + 五条与侧边栏按钮同源的动作命令。
  * 输入：插件实例。
  * 输出：无返回值。
  */
@@ -383,5 +392,12 @@ export function registerCommands(plugin) {
         formatSuccess: (t2) => t2.sidebar.removeBibliographySuccess,
         formatErrorPrefix: (t2) => t2.sidebar.removeBibliographyErrorPrefix,
       }),
+  });
+
+  plugin.registerCommand({
+    id: "toggle-panel",
+    title: t().commands.togglePanel,
+    scope: "global",
+    callback: () => runTogglePanel(plugin),
   });
 }

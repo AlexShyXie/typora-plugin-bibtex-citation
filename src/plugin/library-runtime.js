@@ -8,18 +8,18 @@ export function invalidateLibrary(plugin) {
 }
 
 /**
- * 功能：立即重新加载 BibTeX 文献库，并刷新侧边栏。
+ * 功能：立即重新加载 BibTeX 文献库，并刷新右侧面板。
  * 输入：插件实例。
  * 输出：无返回值。
  */
 export function reloadLibraryNow(plugin) {
   plugin.invalidateLibrary();
   plugin.getBibEntries();
-  plugin.sidebarPanel?.render?.();
+  plugin.rightDock?.refresh?.();
 }
 
 /**
- * 功能：在文献库懒加载完成后，异步刷新一次侧边栏。
+ * 功能：在文献库懒加载完成后，异步刷新一次右侧面板。
  * 输入：插件实例。
  * 输出：无返回值。
  */
@@ -31,12 +31,12 @@ export function scheduleSidebarRefresh(plugin) {
   plugin._sidebarRefreshScheduled = true;
   plugin.window.requestAnimationFrame(() => {
     plugin._sidebarRefreshScheduled = false;
-    plugin.sidebarPanel?.render?.();
+    plugin.rightDock?.refresh?.();
   });
 }
 
 /**
- * 功能：在编辑器 `]` 输入或删除后，异步重算当前文档引用统计并刷新侧边栏。
+ * 功能：在编辑器 `]` 输入或删除后，异步重算当前文档引用统计并刷新右侧面板。
  * 输入：插件实例。
  * 输出：无返回值。
  */
@@ -49,12 +49,12 @@ export function scheduleCitationStateRefresh(plugin) {
   plugin.window.requestAnimationFrame(() => {
     plugin._citationStateRefreshScheduled = false;
     plugin.resetDocumentState();
-    plugin.sidebarPanel?.render?.();
+    plugin.rightDock?.refresh?.();
   });
 }
 
 /**
- * 功能：获取当前可用于检索与展示的 BibTeX 条目列表，并在首次懒加载成功后刷新侧边栏。
+ * 功能：获取当前可用于检索与展示的 BibTeX 条目列表，并在首次懒加载成功后刷新右侧面板。
  * 输入：插件实例。
  * 输出：去重后的文献条目数组。
  */

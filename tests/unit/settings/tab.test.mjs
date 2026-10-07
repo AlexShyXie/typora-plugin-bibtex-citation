@@ -147,10 +147,10 @@ function createPlugin(overrides = {}) {
         store.set(key, value);
       },
     },
-    sidebarPanel: {
-      renderCalls: [],
-      render(options) {
-        this.renderCalls.push(options);
+    rightDock: {
+      refreshCalls: [],
+      refresh(options) {
+        this.refreshCalls.push(options);
       },
     },
     invalidateLibraryCalls: 0,
@@ -204,7 +204,7 @@ test("BibCitationSettingTab 的语言切换会更新设置并刷新视图", () =
 
   assert.equal(plugin.settings.get("displayLanguage"), DISPLAY_LANGUAGE.EN);
   assert.equal(plugin.refreshI18nCalls, 1);
-  assert.equal(plugin.sidebarPanel.renderCalls.length >= 1, true);
+  assert.equal(plugin.rightDock.refreshCalls.length >= 1, true);
   assert.equal(notices.includes("saved"), true);
 });
 

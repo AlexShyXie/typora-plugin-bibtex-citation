@@ -6,7 +6,7 @@
 
 本项目 fork 自 [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero)，并在此基础上逐步调整为面向本地 BibTeX 文件的引用工作流。
 
-![Version](https://img.shields.io/badge/version-v1.0.2-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
+![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
 
 ## 功能概览
 
@@ -14,8 +14,8 @@
 - 支持按 `citation key`、标题、作者、期刊、年份等字段搜索并插入引用键
 - 支持配置单个本地 `.csl` 文件，用于 citation 渲染与 bibliography 更新
 - 支持从当前 Markdown 开头的 YAML frontmatter 读取文档级 `bib` 与 `csl` 文件配置
-- 在左侧活动栏提供 BibTeX 面板按钮，可执行缓存刷新、citation 渲染/恢复与 bibliography 操作
-- 全部操作同步注册到命令面板（`F1`），并额外提供「插入引用…」检索弹窗；禁用侧边栏时也能完成完整工作流
+- 在右侧停靠面板中提供 BibTeX 面板，可执行缓存刷新、citation 渲染/恢复与 bibliography 操作
+- 全部操作同步注册到命令面板（`F1`），并额外提供「插入引用…」检索弹窗；面板未打开时也能完成完整工作流
 - 数字型样式（如 IEEE、Nature）下的叙述式 `@key` 会自动回退为方括号式渲染，不会输出 `[NO_PRINTED_FORM]` 占位符
 - 支持在插件设置中切换 `English` 与 `简体中文` 两种界面语言
 - 支持多 BibTeX 文件、逐条 `sourceType` 路径来源配置与重复 key 优先级控制
@@ -48,10 +48,7 @@
 下面的示例以 Windows 上的 Typora Community Plugin Framework 目录为准：
 
 ```powershell
-# 框架插件目录随安装方式不同而不同，请使用你本机实际存在的那个：
-#   %APPDATA%\Typora\plugins\plugins                  （官方安装脚本，Windows 常见）
-#   $env:UserProfile\.typora\community-plugins\plugins （另一种布局）
-cd "$env:APPDATA\Typora\plugins\plugins"
+cd "$env:UserProfile\.typora\community-plugins\plugins"
 git clone https://github.com/AlexShyXie/typora-plugin-bibtex-citation.git AlexShyXie.bibtex-citation
 ```
 
@@ -84,7 +81,7 @@ npm test
 
 启用插件后，打开插件设置，可以在 `BibTeX Files` 区域逐条维护 `.bib` 文件配置，并在 `CSL File` 区域配置单个 `.csl` 样式文件。
 
-你也可以在设置页顶部通过 `Display Language / 显示语言` 切换插件界面语言。切换后插件会立即更新设置页与侧边栏文案，但不会强制重新读取 `.bib` 文件。
+你也可以在设置页顶部通过 `Display Language / 显示语言` 切换插件界面语言。切换后插件会立即更新设置页与面板文案，但不会强制重新读取 `.bib` 文件。
 
 推荐流程：
 
@@ -93,7 +90,7 @@ npm test
 3. 点击 `Add BibTeX File` 添加到列表
 4. 如需修改已有配置，直接编辑对应输入框或来源类别
 5. 如需删除某项，点击该行右侧的 `Remove`
-6. 在 `CSL File` 中填写一个 `.csl` 路径，并单独选择它的来源类别；该项只能配置一个文件
+6. 在 `CSL File` 中填写一个 `.csl` 路径，并单独选择它的来源类别；该项只能配置一个文件（tests\fixtures\csl\styles有一些测试用csl）
 
 可填写的路径示例：
 
@@ -203,9 +200,9 @@ csl: ./apa.csl
 
 候选列表插入这一步只会写入引用键，不会自动展开完整参考文献格式，也不会修改原始 `.bib` 文件。
 
-### 4. 使用侧边栏操作
+### 4. 使用右侧面板操作
 
-启用 Typora Community Plugin Framework 的活动栏后，左侧会出现一个新的 BibTeX 图标按钮。点击后可打开插件侧边栏面板，用于查看当前配置与文档状态，并执行以下操作：
+按 `F1` 打开命令面板，执行「切换 BibTeX 引用面板 / Toggle BibTeX Citations Panel」，即可把插件面板停靠到 Typora 右侧边栏，用于查看当前配置与文档状态，并执行以下操作：
 
 - `Refresh Cache`
 - `Render / Update Citations / 渲染/更新引用`
@@ -215,7 +212,7 @@ csl: ./apa.csl
 
 面板同时会显示当前 `CSL File`、已配置 BibTeX 文件数量、已索引条目数量和当前文档中的引用统计（中文界面显示为“共 x 条 / y 次”）。BibTeX 与 CSL 的路径摘要会按 `path (sourceType)` 形式展示。
 
-如果你修改了 BibTeX 文件列表，侧边栏中的 `Indexed Entries` 会先显示“待刷新”。此时手动点击 `Refresh Cache`，或直接在文档里输入 `[@query` / 独立的 `@query` 触发建议检索，都会重新读取文献库并恢复真实条目数。
+如果你修改了 BibTeX 文件列表，面板中的 `Indexed Entries` 会先显示“待刷新”。此时手动点击 `Refresh Cache`，或直接在文档里输入 `[@query` / 独立的 `@query` 触发建议检索，都会重新读取文献库并恢复真实条目数。
 
 四个核心按钮可以这样理解：
 
@@ -228,21 +225,23 @@ csl: ./apa.csl
 
 ### 5. 使用命令面板（F1）
 
-侧边栏的全部操作都同步注册到了命令面板，另附一条检索插入命令。按 `F1` 打开命令面板，搜索并执行：
+面板的全部操作都同步注册到了命令面板，另附一条检索插入命令和一条面板显隐命令。按 `F1` 打开命令面板，搜索并执行：
 
 | 命令 | 作用 |
 | --- | --- |
 | `插入引用… / Insert Citation…` | 打开检索弹窗：按 `key` / 标题 / 作者 / 年份 / 期刊过滤条目，`↑↓` 选择、`Enter` 插入、`Esc` 关闭；光标在未闭合方括号内只插入 `@key`，否则插入完整 `[@key]` |
 | `刷新 BibTeX 缓存 / Refresh BibTeX Cache` | 强制重读全部 `.bib` 文件，并以通知反馈当前条目数 |
-| `渲染/更新引用 / Render / Update Citations` | 与侧边栏 `Render / Update Citations` 相同 |
-| `恢复引用块 / Restore Citation Blocks` | 与侧边栏 `Restore Citations` 相同 |
-| `插入/更新参考文献 / Insert / Update Bibliography` | 与侧边栏 `Insert / Update Bibliography` 相同 |
-| `删除参考文献 / Remove Bibliography` | 与侧边栏 `Remove Bibliography` 相同 |
+| `渲染/更新引用 / Render / Update Citations` | 与面板 `Render / Update Citations` 相同 |
+| `恢复引用块 / Restore Citation Blocks` | 与面板 `Restore Citations` 相同 |
+| `插入/更新参考文献 / Insert / Update Bibliography` | 与面板 `Insert / Update Bibliography` 相同 |
+| `删除参考文献 / Remove Bibliography` | 与面板 `Remove Bibliography` 相同 |
+| `切换 BibTeX 引用面板 / Toggle BibTeX Citations Panel` | 打开或收起插件右侧停靠面板：首次执行会在右侧边栏创建面板 leaf 并展开，之后再次执行则切换收起状态 |
 
 几点说明：
 
-- 命令面板入口不依赖活动栏与侧边栏；即使禁用了工作区侧边栏，也能通过 `F1` 完成全部操作
-- 命令与侧边栏按钮调用同一批插件方法，两个入口可以混用，重复触发安全（无变更时会有对应提示）
+- 命令面板入口不依赖活动栏，也不依赖左侧边栏；即使未打开右侧面板，也能通过 `F1` 完成全部操作
+- `切换 BibTeX 引用面板` 的 scope 为 `global`，即使焦点不在编辑器中也能触发
+- 命令与面板按钮调用同一批插件方法，两个入口可以混用，重复触发安全（无变更时会有对应提示）
 - 需要快捷键时，可在框架设置中为命令绑定 `hotkey`
 - 命令标题跟随插件 `Display Language` 设置；启动后修改语言，命令标题需重启 Typora 才会更新
 
@@ -285,10 +284,4 @@ csl: ./apa.csl
 - 插件目录名必须严格等于 `AlexShyXie.bibtex-citation`；用仓库名命名目录会触发同样的 `id` 不一致
 - 变更 `id` 不会影响已写入的文档：受控注释前缀为 `bibtex-citation`，与 `id` 解耦且硬编码
 
-## 说明
 
-- 插件 ID：`AlexShyXie.bibtex-citation`
-- 插件名称：`BibTeX Citations`
-- 当前仓库包名推荐使用 `typora-plugin-bibtex-citation`
-- 插件目录名必须严格等于 `AlexShyXie.bibtex-citation`
-- 受控注释前缀仍保持为 `bibtex-citation`，与插件 `id` 互相独立

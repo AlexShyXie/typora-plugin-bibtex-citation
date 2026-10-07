@@ -3,8 +3,8 @@
   "name": "BibTeX Citations",
   "description": "Insert citations from configured BibTeX files inside bracket citation blocks",
   "author": "AlexShyXie",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minAppVersion": "1.5.0",
-  "minCoreVersion": "2.3.16",
+  "minCoreVersion": "2.10.21",
   "platforms": ["win32"]
 }

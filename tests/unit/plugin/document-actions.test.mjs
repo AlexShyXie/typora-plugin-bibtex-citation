@@ -16,7 +16,7 @@ globalThis.window[coreSymbol] = {
   EditorSuggest: class EditorSuggest {},
   SettingTab: class SettingTab {},
   Modal: class Modal {},
-  SidebarPanel: class SidebarPanel {},
+  WorkspaceView: class WorkspaceView {},
   Notice: class Notice {},
   I18n: class I18n {
     constructor(options = {}) {
@@ -44,10 +44,10 @@ function createPlugin(markdown, styleFile = "apa.csl") {
       },
     },
   };
-  plugin.sidebarPanel = {
-    renderCalls: 0,
-    render() {
-      this.renderCalls += 1;
+  plugin.rightDock = {
+    refreshCalls: 0,
+    refresh() {
+      this.refreshCalls += 1;
     },
   };
   plugin.documentState = {
@@ -100,7 +100,7 @@ test("renderCurrentDocumentCitations 在发生改写时重载文档并刷新状�
   assert.equal(result.changed, true);
   assert.ok(String(reloadArgs?.[0]).includes("bibtex-citation:citation:start"));
   assert.equal(plugin.documentState.clearCalls, 1);
-  assert.equal(plugin.sidebarPanel.renderCalls, 1);
+  assert.equal(plugin.rightDock.refreshCalls, 1);
 });
 
 test("restoreCurrentDocumentCitations 在发生改写时恢复原始 citation", async () => {
@@ -136,7 +136,7 @@ test("restoreCurrentDocumentCitations 在发生改写时恢复原始 citation", 
   assert.equal(result.changed, true);
   assert.ok(reloadMarkdown.includes("[@smith2024]"));
   assert.equal(plugin.documentState.clearCalls, 1);
-  assert.equal(plugin.sidebarPanel.renderCalls, 1);
+  assert.equal(plugin.rightDock.refreshCalls, 1);
 });
 
 test("upsertCurrentDocumentBibliography 在发生改写时重载文档", async () => {
@@ -153,7 +153,7 @@ test("upsertCurrentDocumentBibliography 在发生改写时重载文档", async (
   assert.equal(result.changed, true);
   assert.ok(reloadMarkdown.includes("bibtex-citation:bibliography:start"));
   assert.equal(plugin.documentState.clearCalls, 1);
-  assert.equal(plugin.sidebarPanel.renderCalls, 1);
+  assert.equal(plugin.rightDock.refreshCalls, 1);
 });
 
 test("removeCurrentDocumentBibliography 在无改动时不调用 reloadContent", async () => {
@@ -197,7 +197,7 @@ test("reloadLibraryNow 会失效缓存、重读文献库并刷新侧边栏", () 
 
   assert.equal(invalidated, 1);
   assert.equal(loaded, 1);
-  assert.equal(plugin.sidebarPanel.renderCalls, 1);
+  assert.equal(plugin.rightDock.refreshCalls, 1);
 });
 
 test("scheduleSidebarRefresh 与 scheduleCitationStateRefresh 会避免重复排队", () => {
@@ -217,6 +217,6 @@ test("scheduleSidebarRefresh 与 scheduleCitationStateRefresh 会避免重复排
   queued[0]();
   queued[1]();
 
-  assert.equal(plugin.sidebarPanel.renderCalls, 2);
+  assert.equal(plugin.rightDock.refreshCalls, 2);
   assert.equal(plugin.documentState.clearCalls, 1);
 });

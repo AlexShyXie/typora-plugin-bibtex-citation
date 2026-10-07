@@ -67,7 +67,7 @@ export class BibCitationSettingTab extends SettingTab {
           const value = $(event.target).val();
           plugin.settings.set("displayLanguage", value);
           plugin.refreshI18n();
-          plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+          plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
           this.render();
           new Notice(plugin.i18n.t.settingsSaved);
         });
@@ -120,7 +120,7 @@ export class BibCitationSettingTab extends SettingTab {
         nextFiles[index] = nextConfig;
         plugin.settings.set("bibFiles", serializeBibFileList(nextFiles));
         plugin.invalidateLibrary();
-        plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+        plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
         this.render();
         new Notice(t.settingsSaved);
       };
@@ -137,7 +137,7 @@ export class BibCitationSettingTab extends SettingTab {
         nextFiles.splice(index, 1);
         plugin.settings.set("bibFiles", serializeBibFileList(nextFiles));
         plugin.invalidateLibrary();
-        plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+        plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
         this.render();
         new Notice(t.settingsSaved);
       });
@@ -182,7 +182,7 @@ export class BibCitationSettingTab extends SettingTab {
       nextFiles.push(nextConfig);
       plugin.settings.set("bibFiles", serializeBibFileList(nextFiles));
       plugin.invalidateLibrary();
-      plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+      plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
       this.render();
       new Notice(t.settingsSaved);
     });
@@ -221,7 +221,7 @@ export class BibCitationSettingTab extends SettingTab {
       const trimmedValue = cslInput.value.trim();
       if (!trimmedValue) {
         plugin.settings.set("cslFile", "");
-        plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+        plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
         this.render();
         new Notice(t.settingsSaved);
         return;
@@ -237,7 +237,7 @@ export class BibCitationSettingTab extends SettingTab {
       }
 
       plugin.settings.set("cslFile", serializeSingleFileConfig(nextConfig));
-      plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+      plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
       this.render();
       new Notice(t.settingsSaved);
     };
@@ -251,7 +251,7 @@ export class BibCitationSettingTab extends SettingTab {
     cslClearButton.textContent = t.settings.cslFile.clear;
     cslClearButton.addEventListener("click", () => {
       plugin.settings.set("cslFile", "");
-      plugin.sidebarPanel?.render?.({ allowLibraryLoad: false });
+      plugin.rightDock?.refresh?.({ allowLibraryLoad: false });
       this.render();
       new Notice(t.settingsSaved);
     });

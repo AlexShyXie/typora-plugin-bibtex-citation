@@ -200,22 +200,26 @@
 - `Remove Bibliography` 只删除本插件生成的受控 bibliography 块。
 - 不会删除用户手写的普通参考文献段落。
 
-## 8. 侧边栏规则
+## 8. 右侧面板规则
 
-- 侧边栏显示当前配置摘要、当前索引状态、当前文档引用统计与操作按钮。
-- 侧边栏会显示：
+- 面板停靠在 `workspace.rightSplit` 中，视图类型为 manifest 的插件 id，视图 URI 形如 `typ://<viewType>/<名称>`。
+- 面板内容显示当前配置摘要、当前索引状态、当前文档引用统计与操作按钮：
   - 单个 `CSL File`
   - 当前生效的 BibTeX 文件数量
   - 已索引条目数量
   - 当前文档引用统计
 - 路径类摘要会直接显示 `path (sourceType)`。
 - 修改 BibTeX 文件列表后，`Indexed Entries` 会先显示“待刷新 / Refresh needed”。
-- 侧边栏当前不再显示底部说明文字；行为规则统一以文档为准。
+- 面板当前不再显示底部说明文字；行为规则统一以文档为准。
+- F1 命令面板中的 `Toggle BibTeX Citations Panel` 是唯一面板显隐入口：无 leaf 时经 `core.workspace.right-split:ensure-leaf` 创建并展开，有 leaf 时直接切换右侧分栏折叠状态；命令 scope 为 `global`，不依赖活动栏或左侧栏可见性。
+- 状态刷新统一走 `rightDock.refresh()`：仅在视图已打开时才会调用 `view.render()`，面板未打开或已关闭时刷新是空操作。
+- 面板 leaf 位于 rightSplit 的 tabs 节点下，其自带的 leaf 级 resize 把手永远不会触发拖拽（leaf 的 parent 不是 split），反而会盖住 sidedock 的拖拽把手；构造面板视图时会移除该把手，宽度调整统一依赖 sidedock 把手。
+- 插件卸载时只会 detach 属于本视图类型的 leaf，不影响右侧分栏中的其他面板。
 
 ## 9. 设置页规则
 
 - 支持 `English` 与 `简体中文` 两种显示语言。
-- 切换显示语言后，会立即更新设置页与侧边栏文案，但不会强制重读文献库。
+- 切换显示语言后，会立即更新设置页与右侧面板文案，但不会强制重读文献库。
 - 每一条 BibTeX 文件配置都要分别维护：
   - `path`
   - `sourceType`

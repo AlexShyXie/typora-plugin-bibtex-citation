@@ -79,11 +79,17 @@ const ENTRY_B = {
 };
 
 function createMockPlugin(entries = [ENTRY_A, ENTRY_B]) {
-  return {
+  const toggleCalls = [];
+  const plugin = {
     i18n: createI18n("zh-cn"),
     _commands: [],
     registerCommand(command) {
       this._commands.push(command);
+    },
+    rightDock: {
+      toggle() {
+        toggleCalls.push(true);
+      },
     },
     bibEntries: entries,
     reloadCalls: 0,
@@ -98,6 +104,8 @@ function createMockPlugin(entries = [ENTRY_A, ENTRY_B]) {
     upsertCurrentDocumentBibliography: async () => ({ changed: false }),
     removeCurrentDocumentBibliography: async () => ({ changed: false }),
   };
+  plugin.toggleCalls = toggleCalls;
+  return plugin;
 }
 
 test("getCitationInsertText 在未闭合方括号内只补 @key，其余补完整 [@key]", () => {
@@ -109,11 +117,11 @@ test("getCitationInsertText 在未闭合方括号内只补 @key，其余补完�
   assert.equal(getCitationInsertText("普通文本", "k1"), "[@k1]");
 });
 
-test("registerCommands 注册 6 条 editor 作用域命令且标题取自 commands 文案", () => {
+test("registerCommands 注册 7 条命令且标题取自 commands 文案", () => {
   const plugin = createMockPlugin();
   registerCommands(plugin);
 
-  assert.equal(plugin._commands.length, 6);
+  assert.equal(plugin._commands.length, 7);
   assert.deepEqual(
     plugin._commands.map((command) => command.id),
     [
@@ -123,10 +131,12 @@ test("registerCommands 注册 6 条 editor 作用域命令且标题取自 comman
       "restore-citations",
       "upsert-bibliography",
       "remove-bibliography",
+      "toggle-panel",
     ],
   );
   for (const command of plugin._commands) {
-    assert.equal(command.scope, "editor");
+    const expectedScope = command.id === "toggle-panel" ? "global" : "editor";
+    assert.equal(command.scope, expectedScope);
     assert.equal(typeof command.callback, "function");
   }
   assert.equal(
@@ -141,6 +151,29 @@ test("registerCommands 注册 6 条 editor 作用域命令且标题取自 comman
     plugin._commands[4].title,
     plugin.i18n.t.commands.upsertBibliography,
   );
+  assert.equal(
+    plugin._commands[6].title,
+    plugin.i18n.t.commands.togglePanel,
+  );
+});
+
+test("toggle-panel 命令通过 rightDock.toggle 切换右侧面板且不抛错", () => {
+  const plugin = createMockPlugin();
+  registerCommands(plugin);
+  const command = plugin._commands.find((item) => item.id === "toggle-panel");
+
+  command.callback();
+
+  assert.deepEqual(plugin.toggleCalls, [true]);
+});
+
+test("rightDock 缺失时 toggle-panel 回调不抛错", () => {
+  const plugin = createMockPlugin();
+  plugin.rightDock = null;
+  registerCommands(plugin);
+  const command = plugin._commands.find((item) => item.id === "toggle-panel");
+
+  command.callback();
 });
 
 test("refresh-cache 命令重载文献库并以条目数反馈", () => {

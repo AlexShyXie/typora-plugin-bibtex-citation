@@ -12,9 +12,10 @@ setupTyporaTestEnv();
 const notices = [];
 const coreSymbol = Symbol.for("typora-plugin-core@v2");
 globalThis.window[coreSymbol] = {
-  SidebarPanel: class SidebarPanel {
-    addRibbonButton(config) {
-      this.ribbonConfig = config;
+  WorkspaceView: class WorkspaceView {
+    constructor(leaf) {
+      this.leaf = leaf;
+      this.isOpen = false;
     }
   },
   Notice: class Notice {
@@ -24,7 +25,7 @@ globalThis.window[coreSymbol] = {
   },
 };
 
-const { BibCitationSidebarPanel } = await import(createFreshModuleUrl("src/sidebar/panel.js"));
+const { BibCitationPanelView } = await import(createFreshModuleUrl("src/sidebar/panel.js"));
 
 function createPlugin(overrides = {}) {
   return {
@@ -64,9 +65,27 @@ function createPlugin(overrides = {}) {
   };
 }
 
-test("BibCitationSidebarPanel handle* 方法在成功、无改动和失败时提示正确消息", async () => {
+test("BibCitationPanelView 构造时移除 leaf 自带的失效 resize 把手", () => {
+  let removed = false;
+  const leaf = createMockLeaf();
+  leaf.resizeHandleEl.remove = () => {
+    removed = true;
+  };
+
+  new BibCitationPanelView(leaf, createPlugin());
+
+  assert.equal(removed, true);
+});
+
+test("leaf 缺少 resizeHandleEl 时构造不抛错", () => {
+  const leaf = { containerEl: createMockElement("div") };
+
+  new BibCitationPanelView(leaf, createPlugin());
+});
+
+test("BibCitationPanelView handle* 方法在成功、无改动和失败时提示正确消息", async () => {
   notices.length = 0;
-  const panel = new BibCitationSidebarPanel(createPlugin());
+  const panel = new BibCitationPanelView(createMockLeaf(), createPlugin());
   panel.containerEl = createMockElement("section");
 
   await panel.handleRenderCitations();
@@ -82,7 +101,7 @@ test("BibCitationSidebarPanel handle* 方法在成功、无改动和失败时提
   ]);
 
   notices.length = 0;
-  const unchanged = new BibCitationSidebarPanel(createPlugin({
+  const unchanged = new BibCitationPanelView(createMockLeaf(), createPlugin({
     async renderCurrentDocumentCitations() { return { changed: false }; },
     async restoreCurrentDocumentCitations() { return { changed: false }; },
     async upsertCurrentDocumentBibliography() { return { changed: false }; },
@@ -102,7 +121,7 @@ test("BibCitationSidebarPanel handle* 方法在成功、无改动和失败时提
   ]);
 
   notices.length = 0;
-  const failing = new BibCitationSidebarPanel(createPlugin({
+  const failing = new BibCitationPanelView(createMockLeaf(), createPlugin({
     async renderCurrentDocumentCitations() { throw new Error("x"); },
     async restoreCurrentDocumentCitations() { throw new Error("y"); },
     async upsertCurrentDocumentBibliography() { throw new Error("z"); },
@@ -121,3 +140,10 @@ test("BibCitationSidebarPanel handle* 方法在成功、无改动和失败时提
     "Remove failed: w",
   ]);
 });
+
+function createMockLeaf() {
+  return {
+    containerEl: createMockElement("div"),
+    resizeHandleEl: createMockElement("hr"),
+  };
+}

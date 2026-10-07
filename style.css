@@ -339,11 +339,25 @@
 }
 
 .bibtex-sidebar-panel {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
   gap: 14px;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
   padding: 16px 14px 18px;
+  overflow-y: auto;
   color: #222;
+}
+
+/* 面板 leaf 位于 tabs 节点下，其自带 resize 把手不会触发拖拽，
+   反而会盖住 sidedock 的拖拽把手；隐藏它以保证右侧边栏可以拖动调宽。 */
+.typ-workspace-sidedock
+  .typ-workspace-leaf:has(> .bibtex-sidebar-panel)
+  > hr.typ-workspace-leaf-resize-handle {
+  display: none;
 }
 
 .bibtex-sidebar-section {

@@ -8,7 +8,7 @@
 
 1. 在设置页逐条配置 BibTeX 文件与 `sourceType`；文档 YAML frontmatter 可声明 `bib` 与 `csl`，路径按当前 Markdown 目录解析。文档级 BibTeX 优先参与合并，重复 key 采用更靠前的条目；文档级 CSL 优先于设置页配置。
 2. 输入方括号式 `[@query` 或独立正文位置的 `@query`，按 key、标题、作者、年份和期刊检索，选择候选后插入 `@citationKey`。
-3. 侧边栏提供文献库状态、当前文档唯一 key 数和总引用次数，以及 CSL 操作入口；设置页支持 English 与简体中文。
+3. 右侧停靠面板提供文献库状态、当前文档唯一 key 数和总引用次数，以及 CSL 操作入口；通过 F1 命令「Toggle BibTeX Citations Panel」打开或收起，可绑定快捷键。设置页支持 English 与简体中文。
 4. 渲染或更新 citation 前扫描并校验全文，使用 CSL HTML 输出；受控 citation 注释保存原始语法，支持再次渲染与恢复。
 5. 插入或更新 bibliography 时复用统一引用源，并更新文末受控块；删除操作仅作用于插件生成的 bibliography 块。
 

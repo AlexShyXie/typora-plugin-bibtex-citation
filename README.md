@@ -8,7 +8,7 @@ The plugin only reads the `.bib` and `.csl` files you configure in its settings,
 
 This project is forked from [adam-coates/typora-plugin-zotero](https://github.com/adam-coates/typora-plugin-zotero), and has been gradually reshaped into a citation workflow oriented toward local BibTeX files.
 
-![Version](https://img.shields.io/badge/version-v1.0.2-2f6feb)![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
+![Platform](https://img.shields.io/badge/platform-Windows-1f883d)![Node](https://img.shields.io/badge/node-%3E%3D22-8a2be2)![Typora Plugin](https://img.shields.io/badge/Typora-Community%20Plugin-0a7ea4)
 
 ## Features
 
@@ -16,8 +16,8 @@ This project is forked from [adam-coates/typora-plugin-zotero](https://github.co
 - Search by `citation key`, title, author, journal, year and other fields, then insert the citation key
 - Support configuring a single local `.csl` file for citation rendering and bibliography updates
 - Support reading document-level `bib` and `csl` file configuration from the YAML frontmatter at the beginning of the current Markdown file
-- Provide a BibTeX panel button in the left activity bar for cache refresh, citation render/restore, and bibliography operations
-- All operations are also registered in the command palette (`F1`), plus an "Insert Citation…" search dialog, so the full workflow is available even when the sidebar is disabled
+- Provide a right docked BibTeX panel for cache refresh, citation render/restore, and bibliography operations
+- All operations are also registered in the command palette (`F1`), plus an "Insert Citation…" search dialog, so the full workflow is available without leaving the editor
 - Under numeric styles (e.g. IEEE, Nature), narrative `@key` automatically falls back to bracketed rendering and never outputs a `[NO_PRINTED_FORM]` placeholder
 - Support switching the UI language between `English` and `简体中文` in plugin settings
 - Support multiple BibTeX files, per-entry `sourceType` path sources, and duplicate-key priority control
@@ -44,9 +44,6 @@ This project is forked from [adam-coates/typora-plugin-zotero](https://github.co
 Clone or copy this repository into the plugin directory of the Typora Community Plugin Framework. The plugin directory name must be exactly the plugin `id` declared in `manifest.json`, i.e. `AlexShyXie.bibtex-citation`; otherwise the framework reports an `id` mismatch. The GitHub repository name (`typora-plugin-bibtex-citation`) does not have to equal the `id`.
 The following example uses the Typora Community Plugin Framework directory on Windows:
 ```powershell
-# The framework plugin directory differs by installation method; use the one that exists on your machine:
-#   %APPDATA%\Typora\plugins\plugins                                (official installer, common on Windows)
-#   $env:UserProfile\.typora\community-plugins\plugins               (alternative layout)
 cd "$env:APPDATA\Typora\plugins\plugins"
 git clone https://github.com/AlexShyXie/typora-plugin-bibtex-citation.git AlexShyXie.bibtex-citation
 ```
@@ -67,7 +64,7 @@ The complete behavior rules, edge cases and constraints of the current implement
 4. Enable `BibTeX Citations` in the installed plugin list
 ## Configure BibTeX File Paths
 After enabling the plugin, open the plugin settings. In the `BibTeX Files` area you can maintain `.bib` file entries one by one, and in the `CSL File` area configure a single `.csl` style file.
-You can also switch the plugin UI language via `Display Language / 显示语言` at the top of the settings page. After switching, the plugin immediately updates the settings page and sidebar texts, but does not force a re-read of the `.bib` files.
+You can also switch the plugin UI language via `Display Language / 显示语言` at the top of the settings page. After switching, the plugin immediately updates the settings page and panel texts, but does not force a re-read of the `.bib` files.
 Recommended workflow:
 1. Enter a `.bib` file path in the input box
 2. Choose a source category for this path
@@ -156,15 +153,15 @@ Candidates are filtered by ‘inclusive matching’: perform a case-insensitive 
 
 Inserting the candidate list writes only the citation key, without automatically expanding to the full reference format or modifying the original `.bib` file.
 
-### 4. Use the Sidebar
-After enabling the activity bar of the Typora Community Plugin Framework, a new BibTeX icon button appears on the left. Click it to open the plugin's sidebar panel, where you can view the current configuration and document status, and perform the following operations:
+### 4. Use the Right Docked Panel
+Press `F1` to open the command palette and run `Toggle BibTeX Citations Panel` (中文界面为「切换 BibTeX 引用面板」) to dock the plugin panel into the right sidebar. The panel shows the current configuration and document status, and provides the following operations:
 - `Refresh Cache`
 - `Render / Update Citations`
 - `Restore Citations`
 - `Insert / Update Bibliography`
 - `Remove Bibliography`
 The panel also shows the current `CSL File`, the number of configured BibTeX files, the number of indexed entries, and citation statistics for the current document (e.g. "x entries / y citations"). BibTeX and CSL path summaries are displayed in the form `path (sourceType)`.
-If you modify the BibTeX file list, the `Indexed Entries` in the sidebar first shows "pending refresh". At that point, manually clicking `Refresh Cache`, or directly typing `[@query` / a standalone `@query` in the document to trigger suggestion search, will re-read the library and restore the real entry count.
+If you modify the BibTeX file list, the `Indexed Entries` in the panel first shows "pending refresh". At that point, manually clicking `Refresh Cache`, or directly typing `[@query` / a standalone `@query` in the document to trigger suggestion search, will re-read the library and restore the real entry count.
 The four core buttons can be understood as follows:
 - `Render / Update Citations`: renders strictly valid `[@key]` / `[@a; @b]`, narrative `@key`, or existing controlled citation blocks into in-text citations in the current CSL style
 - `Restore Citations`: restores controlled citation blocks back to the original `[@key]`, `[@a; @b]`, or `@key`
@@ -172,18 +169,19 @@ The four core buttons can be understood as follows:
 - `Remove Bibliography`: removes only the controlled bibliography block generated by this plugin
 For finer citation syntax, controlled comment formats, source-of-truth rules, error stop conditions, and bibliography update behavior, see [doc/note/behavior-rules.md](doc/note/behavior-rules.md).
 ### 5. Use the Command Palette (F1)
-All sidebar operations are also registered in the command palette, plus one search-and-insert command. Press `F1` to open the command palette, then search and run:
+All panel operations are also registered in the command palette, plus one search-and-insert command and one panel toggle command. Press `F1` to open the command palette, then search and run:
 | Command                        | Description                                                  |
 | ------------------------------ | ------------------------------------------------------------ |
 | `Insert Citation…`             | Opens a search dialog: filter entries by `key` / title / author / year / journal, select with `↑↓`, insert with `Enter`, close with `Esc`; if the cursor is inside an unclosed bracket, only `@key` is inserted, otherwise a full `[@key]` is inserted |
 | `Refresh BibTeX Cache`         | Force re-reads all `.bib` files and reports the current entry count via a notification |
-| `Render / Update Citations`    | Same as the sidebar `Render / Update Citations`              |
-| `Restore Citation Blocks`      | Same as the sidebar `Restore Citations`                      |
-| `Insert / Update Bibliography` | Same as the sidebar `Insert / Update Bibliography`           |
-| `Remove Bibliography`          | Same as the sidebar `Remove Bibliography`                    |
+| `Render / Update Citations`    | Same as the panel `Render / Update Citations`                |
+| `Restore Citation Blocks`      | Same as the panel `Restore Citations`                        |
+| `Insert / Update Bibliography` | Same as the panel `Insert / Update Bibliography`             |
+| `Remove Bibliography`          | Same as the panel `Remove Bibliography`                      |
+| `Toggle BibTeX Citations Panel` | Opens or collapses the plugin right docked panel; creates the panel leaf and expands the right sidebar on first run, then toggles it afterwards |
 | A few notes:                   |                                                              |
-- The command palette does not depend on the activity bar or the sidebar; even if the workspace sidebar is disabled, all operations remain available via `F1`
-- Commands and sidebar buttons invoke the same set of plugin methods; the two entry points can be mixed freely, and repeated triggers are safe (a corresponding notice appears when nothing changes)
+- The command palette does not depend on the activity bar; even if the left sidebar is disabled, all operations remain available via `F1`
+- Panel buttons invoke the same set of plugin methods; the two entry points can be mixed freely, and repeated triggers are safe (a corresponding notice appears when nothing changes)
 - If you need a shortcut, you can bind a `hotkey` to a command in the framework settings
 - Command titles follow the plugin `Display Language` setting; if you change the language after startup, command titles require a Typora restart to update
 ## CSL Support Boundaries
@@ -214,9 +212,3 @@ All sidebar operations are also registered in the command palette, plus one sear
 - The `id` of this plugin is `AlexShyXie.bibtex-citation`; if an older `bibtex-citation` installation is still registered, uninstall it and remove its leftover settings first, then install again
 - The plugin directory name must be exactly `AlexShyXie.bibtex-citation`; a directory named after the repository will trigger the same `id` mismatch
 - Changing the `id` does not affect documents already written: the controlled comment prefix is `bibtex-citation` and is hardcoded independently of the `id`
-## Notes
-- Plugin ID: `AlexShyXie.bibtex-citation`
-- Plugin name: `BibTeX Citations`
-- The recommended repository package name is `typora-plugin-bibtex-citation`
-- The plugin directory name must be exactly `AlexShyXie.bibtex-citation`
-- The controlled comment prefix remains `bibtex-citation` and is independent of the plugin `id`

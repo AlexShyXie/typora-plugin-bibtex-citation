@@ -19,21 +19,22 @@
 - [`main.js`](main.js)：轻量入口，只负责转发到 [`src/plugin.js`](src/plugin.js)，尽量不要把业务逻辑回填到这里
 - [`src/plugin.js`](src/plugin.js)：主控外观层，负责持有运行时状态、暴露公开方法并把实现委托给 `src/plugin/*.js` 子模块；后续新增主流程优先继续沿用这种 façade + 子模块拆分
 - [`src/plugin/document-actions.js`](src/plugin/document-actions.js)：主控层的 CSL 文档改写动作集合，统一处理执行前校验、Markdown 读取、渲染/恢复/bibliography 改写和 reload/刷新链路
-- [`src/plugin/runtime.js`](src/plugin/runtime.js)：主控层的启动注册与设置规范化逻辑，负责设置默认化、设置页/侧边栏/建议器装配
+- [`src/plugin/runtime.js`](src/plugin/runtime.js)：主控层的启动注册与设置规范化逻辑，负责设置默认化、设置页/右侧面板/建议器装配
 - [`src/plugin/library-runtime.js`](src/plugin/library-runtime.js) / [`src/plugin/document-state-runtime.js`](src/plugin/document-state-runtime.js)：主控层的文献库缓存、调度刷新与当前文档状态访问薄封装
 - [`src/bibtex/`](src/bibtex)：BibTeX 数据层，负责设置序列化、路径解析、条目解析与缓存；为建议检索、引用校验和 CSL 渲染提供统一条目来源
 - [`src/bibtex/source-configs.js`](src/bibtex/source-configs.js) / [`src/document/frontmatter.js`](src/document/frontmatter.js)：文档级 YAML 文件配置层，负责从当前 Markdown frontmatter 读取 `bib` 与 `csl`，并与设置页配置合并
 - [`src/csl/`](src/csl)：CSL 工作流层，负责 Pandoc 风格叙述式扫描、模板注册、BibTeX 到 CSL-JSON 映射、citation 渲染、恢复与 bibliography 更新；与 [`src/document/`](src/document) 一起构成“扫描文档 -> 校验 -> 改写”的主链路
-- [`src/document/`](src/document)：文档扫描与当前文档轻量状态层，负责闭合方括号提取、引用统计与错误缓存；被侧边栏摘要和 CSL 操作共同复用
+- [`src/document/`](src/document)：文档扫描与当前文档轻量状态层，负责闭合方括号提取、引用统计与错误缓存；被右侧面板摘要和 CSL 操作共同复用
 - [`src/suggest/`](src/suggest)：建议交互层，负责 `[@query]` 与独立叙述式 `@query` 触发、候选排序、HTML 渲染和键鼠兜底；直接依赖 BibTeX 数据层，不参与 CSL 改写
+- [`src/sidebar/panel.js`](src/sidebar/panel.js) / [`src/sidebar/right-dock.js`](src/sidebar/right-dock.js)：右侧停靠面板层，面板视图负责配置摘要、引用统计与 CSL 操作入口的 DOM 渲染，right-dock 负责 leaf 生命周期与轻量重绘
 - [`src/settings/`](src/settings)：设置 UI 层，负责维护 BibTeX/CSL 路径、逐条来源类别和显示语言；设置变更后通过 [`src/plugin.js`](src/plugin.js) 驱动缓存失效和轻量重绘
-- [`src/constants.js`](src/constants.js) / [`src/i18n.js`](src/i18n.js)：共享常量与文案层，被设置页、侧边栏和主控装配共同依赖
+- [`src/constants.js`](src/constants.js) / [`src/i18n.js`](src/i18n.js)：共享常量与文案层，被设置页、右侧面板和主控装配共同依赖
 - [`src/utils/`](src/utils)：通用小工具，当前主要提供 HTML、文本压缩与错误摘要辅助，尽量保持无宿主耦合
-- [`style.css`](style.css)：建议列表、侧边栏和活动栏按钮的样式层；与宿主 Typora 样式存在直接耦合，改动时要留意覆盖关系
+- [`style.css`](style.css)：建议列表与右侧停靠面板的样式层；与宿主 Typora 样式存在直接耦合，改动时要留意覆盖关系
 - [`manifest.json`](manifest.json) / [`package.json`](package.json)：插件元数据与依赖入口，分别影响 Typora 识别和本地 Node 运行环境；当前仓库/包名与插件 `id` 不一定相同
 - [`README.md`](README.md)：对外使用说明；能力边界、按钮语义和支持矩阵变更后要同步更新
-- [`doc/note/behavior-rules.md`](doc/note/behavior-rules.md)：当前行为规则单点说明，集中维护路径解析、引用源、受控 citation、bibliography 与侧边栏/设置页边界
-- [`tests/unit/`](tests/unit)：正式单元测试入口，当前覆盖 BibTeX 数据层、CSL 主链路、当前文档状态、建议器、设置页、侧边栏与插件薄封装
+- [`doc/note/behavior-rules.md`](doc/note/behavior-rules.md)：当前行为规则单点说明，集中维护路径解析、引用源、受控 citation、bibliography 与右侧面板/设置页边界
+- [`tests/unit/`](tests/unit)：正式单元测试入口，当前覆盖 BibTeX 数据层、CSL 主链路、当前文档状态、建议器、设置页、右侧面板与插件薄封装
 - [`tests/support/`](tests/support) / [`tests/fixtures/`](tests/fixtures)：测试辅助环境与真实 CSL 样式夹具；`tests/output/` 不纳入版本控制
 
 ## 技术栈与技术路线
@@ -72,17 +73,18 @@
 - 建议器支持未闭合方括号中的 `[@key` / `[@a; @b`，以及位于独立正文边界的叙述式 `@key`；中文紧贴、邮箱、URL 与代码上下文不触发叙述式建议
 - 候选项必须返回 HTML 字符串而不是 DOM 节点；建议交互兜底逻辑集中在 [`src/suggest/interactions.js`](src/suggest/interactions.js)
 
-### 当前文档状态与侧边栏
+### 当前文档状态与右侧面板
 
 - 当前文档引用统计统一读取严格方括号、已知叙述式 key 与受控 citation 真源；文档状态缓存与错误信息由 [`src/document/`](src/document) 统一维护
 - 插件主控通过 `invalidateLibrary()` 标记文献库失效，通过 `reloadLibraryNow()` 执行显式重读；不要混用两者语义
-- 侧边栏展示的是 BibTeX 文献库状态、当前文档引用统计和 CSL 操作入口；相关状态刷新优先复用主控已有的轻量重绘链路
+- 面板停靠在 `workspace.rightSplit` 的 leaf 中，视图类型等于 manifest 的插件 id；通过 `app.viewManager.registerView` 注册，由 [`src/sidebar/right-dock.js`](src/sidebar/right-dock.js) 负责 `open/toggle/isVisible/dispose`
+- 右侧面板展示的是 BibTeX 文献库状态、当前文档引用统计和 CSL 操作入口；相关状态刷新统一走 `rightDock.refresh(options)`，仅在视图已打开时透传给 `view.render(options)`
 
 ### CSL 工作流
 
 - `Render / Update Citations` 会同时处理严格合法的可见 `[@key]` / `[@a; @b]`、独立且 key 已知的叙述式 `@key` 与已有受控 citation 块；带前缀说明、locator、未知 key 或逗号分隔的可见方括号块不会参与改写
 - 所有 CSL 文档改写前都会重新扫描全文；只要任意闭合方括号块中出现未知 key 或非严格 CSL 语法，就直接报错并停止
-- CSL 相关模块必须保持懒加载，并通过 `createRequire(import.meta.url)` 解析插件目录内的 `@citation-js/*` 依赖，否则 Typora 设置页与侧边栏可能整块消失
+- CSL 相关模块必须保持懒加载，并通过 `createRequire(import.meta.url)` 解析插件目录内的 `@citation-js/*` 依赖，否则 Typora 设置页与右侧面板可能整块消失
 - citation 渲染优先使用 CSL 的 `html` 输出；叙述式引用使用 citeproc `composite` 模式，同作者同年消歧按整篇文档上下文与 bibliography 排序稳定计算
 
 ### Bibliography 与引用源

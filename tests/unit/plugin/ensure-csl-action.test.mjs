@@ -15,7 +15,7 @@ globalThis.window[coreSymbol] = {
   EditorSuggest: class EditorSuggest {},
   SettingTab: class SettingTab {},
   Modal: class Modal {},
-  SidebarPanel: class SidebarPanel {},
+  WorkspaceView: class WorkspaceView {},
   Notice: class Notice {},
   I18n: class I18n {
     constructor(options = {}) {

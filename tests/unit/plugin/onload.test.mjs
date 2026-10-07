@@ -8,6 +8,7 @@ import {
 
 setupTyporaTestEnv();
 
+const registeredViewTypes = [];
 const coreSymbol = Symbol.for("typora-plugin-core@v2");
 class BasePlugin {
   constructor() {
@@ -28,12 +29,14 @@ class BasePlugin {
       },
     };
     this.app = {
-      workspace: {
-        sidebar: {
-          addPanel(panel) {
-            return { panel };
-          },
+      viewManager: {
+        registerView(viewType) {
+          registeredViewTypes.push(viewType);
+          return { viewType };
         },
+      },
+      workspace: {
+        rightSplit: {},
       },
     };
     this.manifest = { id: "bibtex-citation" };
@@ -69,9 +72,7 @@ globalThis.window[coreSymbol] = {
   EditorSuggest: class EditorSuggest {},
   SettingTab: class SettingTab {},
   Modal: class Modal {},
-  SidebarPanel: class SidebarPanel {
-    addRibbonButton() {}
-  },
+  WorkspaceView: class WorkspaceView {},
   Notice: class Notice {},
   I18n: class I18n {
     constructor(options = {}) {
@@ -81,6 +82,9 @@ globalThis.window[coreSymbol] = {
 };
 
 const { default: BibCitationPlugin } = await import(createFreshModuleUrl("src/plugin.js"));
+const { BIB_PANEL_VIEW_TYPE } = await import(
+  createFreshModuleUrl("src/sidebar/right-dock.js")
+);
 
 test("onload 会注册设置、侧边栏和建议器，并规范化默认设置", async () => {
   const plugin = new BibCitationPlugin();
@@ -120,9 +124,10 @@ test("onload 会注册设置、侧边栏和建议器，并规范化默认设置"
   assert.equal(plugin.settings.get("displayLanguage"), "zh-cn");
   assert.equal(plugin._settingTabs.length, 1);
   assert.equal(plugin._markdownSuggests.length, 1);
-  assert.ok(plugin.sidebarPanel);
+  assert.ok(plugin.rightDock);
+  assert.deepEqual(registeredViewTypes, [BIB_PANEL_VIEW_TYPE]);
   assert.ok(plugin._suggest);
-  assert.equal(plugin._commands.length, 6);
+  assert.equal(plugin._commands.length, 7);
   assert.deepEqual(
     plugin._commands.map((command) => command.id),
     [
@@ -132,7 +137,14 @@ test("onload 会注册设置、侧边栏和建议器，并规范化默认设置"
       "restore-citations",
       "upsert-bibliography",
       "remove-bibliography",
+      "toggle-panel",
     ],
   );
-  assert.ok(plugin._commands.every((command) => command.scope === "editor"));
+  assert.ok(
+    plugin._commands.every(
+      (command) =>
+        command.scope ===
+        (command.id === "toggle-panel" ? "global" : "editor"),
+    ),
+  );
 });

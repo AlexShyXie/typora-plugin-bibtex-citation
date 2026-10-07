@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   collectTextContent,
   createFreshModuleUrl,
+  createMockElement,
   setupTyporaTestEnv,
 } from "../../support/typora-test-env.mjs";
 
@@ -11,15 +12,16 @@ setupTyporaTestEnv();
 
 const coreSymbol = Symbol.for("typora-plugin-core@v2");
 globalThis.window[coreSymbol] = {
-  SidebarPanel: class SidebarPanel {
-    addRibbonButton(config) {
-      this.ribbonConfig = config;
+  WorkspaceView: class WorkspaceView {
+    constructor(leaf) {
+      this.leaf = leaf;
+      this.isOpen = false;
     }
   },
   Notice: class Notice {},
 };
 
-const { BibCitationSidebarPanel } = await import(
+const { BibCitationPanelView } = await import(
   createFreshModuleUrl("src/sidebar/panel.js")
 );
 
@@ -81,8 +83,8 @@ function createPlugin(overrides = {}) {
   };
 }
 
-test("BibCitationSidebarPanel.render 在 allowLibraryLoad=false 时显示 unavailable，并渲染路径列表和按钮", () => {
-  const panel = new BibCitationSidebarPanel(createPlugin());
+test("BibCitationPanelView.render 在 allowLibraryLoad=false 时显示 unavailable，并渲染路径列表和按钮", () => {
+  const panel = new BibCitationPanelView(createMockLeaf(), createPlugin());
   panel.render({ allowLibraryLoad: false });
 
   const text = collectTextContent(panel.containerEl);
@@ -92,8 +94,9 @@ test("BibCitationSidebarPanel.render 在 allowLibraryLoad=false 时显示 unavai
   assert.match(text, /Refresh/);
 });
 
-test("BibCitationSidebarPanel.render 在 citationState 出错时显示错误摘要", () => {
-  const panel = new BibCitationSidebarPanel(
+test("BibCitationPanelView.render 在 citationState 出错时显示错误摘要", () => {
+  const panel = new BibCitationPanelView(
+    createMockLeaf(),
     createPlugin({
       getCurrentDocumentCitationState() {
         return {
@@ -110,3 +113,7 @@ test("BibCitationSidebarPanel.render 在 citationState 出错时显示错误摘�
     /Invalid block: \[@alpha, p\. 3\]/,
   );
 });
+
+function createMockLeaf() {
+  return { containerEl: createMockElement("div") };
+}

@@ -27,7 +27,7 @@ export function applyDocumentRewriteResult(plugin, result) {
 
   reloadContent(result.markdown, false, true, false, true);
   plugin.resetDocumentState();
-  plugin.sidebarPanel?.render?.();
+  plugin.rightDock?.refresh?.();
   return result;
 }
 
